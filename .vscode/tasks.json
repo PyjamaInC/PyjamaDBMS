@@ -1,0 +1,38 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build pyjamaDB",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "cd Parser && rm -f *.o && lex Parser.l && g++ -g -c lex.yy.c -o lex.yy.o && g++ -g -c create_validate.c -o create_validate.o && g++ -g -c Sql_validate.c -o Sql_validate.o && g++ -g lex.yy.o create_validate.o Sql_validate.o -o pyjamaDB -lfl"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": {
+                "owner": "cpp",
+                "fileLocation": ["absolute"],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                }
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": true
+            }
+        }
+    ]
+}

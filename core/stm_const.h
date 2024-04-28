@@ -1,0 +1,9 @@
+#ifndef _STM_CONST_H_
+#define _STM_CONST_H_
+
+#define TABLE_NAME_MAX_SIZE 64
+#define COLUMN_NAME_MAX_SIZE 64
+#define MAX_COLS_SUPPORTED_PER_TABLE 32
+
+
+#endif // _STM_CONST_H_
