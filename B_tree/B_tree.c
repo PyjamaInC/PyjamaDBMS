@@ -5,6 +5,8 @@
 #include <assert.h>
 #include <time.h>
 
+int count;
+
 B_node *init_B_node(){
 
     struct _B_node_ *node = (struct _B_node_ *)calloc(1, sizeof(struct _B_node_));
@@ -139,7 +141,7 @@ void insert(B_tree *tree, B_node *current, B_key *key, void* value){
             } else {
                 // do not have a prevChild, then refer next directly 
                 // updated: the very first record on B+ tree, and will not come to this case
-                temp->next = current->child[1];
+                temp->next = (B_node *)current->child[1];
 
             }
         }
@@ -202,14 +204,13 @@ void resort(B_node *left, B_node *right){
     }
 }
 
-void delete(B_tree *tree, B_node *current, B_key *key){
-}
+void Delete(B_tree *tree, B_node *current, B_key *key);
 
 void redistribute(B_tree *tree, B_node *current){
     // base case: current is root, 
     if (current->isRoot){
         if (current->key_num == 1 && !current->isLeaf){
-            tree->root = current->child[0];
+            tree->root = (B_node *)current->child[0];
             tree->root->isRoot = true;
             free(current);
         }
@@ -228,7 +229,7 @@ void redistribute(B_tree *tree, B_node *current){
     int index = Binary_search(tree, father, &current->key[0]) + 1;
     // checks if there is a next child
     if (index + 1 < father->key_num){
-        nextChild = father->child[index + 1];
+        nextChild = (B_node *)father->child[index + 1];
         if ((nextChild->key_num - 1)*2 >= tree->MaxChildNum){
             resort(current, nextChild);
             father->key[index + 1] = nextChild->key[0];
@@ -236,7 +237,7 @@ void redistribute(B_tree *tree, B_node *current){
         }
     }
     if (index - 1 >= 0){
-        prevChild = father->child[index - 1];
+        prevChild = (B_node *)father->child[index - 1];
         if ((prevChild->key_num - 1)*2 >= tree->MaxChildNum){
             resort(prevChild, current);
             father->key[index] = current->key[0];
@@ -258,7 +259,7 @@ void redistribute(B_tree *tree, B_node *current){
             current->key_num++;
             i++;
         }
-        delete(tree, father, &nextChild->key[0]);
+        Delete(tree, father, &nextChild->key[0]);
         return;
     }
     if (index - 1 >= 0){
@@ -275,13 +276,13 @@ void redistribute(B_tree *tree, B_node *current){
             prevChild->key_num++;
             i++;
         }
-        delete(tree, father, &current->key[0]);
+        Delete(tree, father, &current->key[0]);
         return;
     }
     printf("what?! you are the only child\n");
 }
 
-void delete(B_tree *tree, B_node *current, B_key *key){
+void Delete(B_tree *tree, B_node *current, B_key *key){
 
     int i, del = Binary_search(tree, current, key);
     void *deleted_child = current->child[del];
@@ -318,6 +319,211 @@ void delete(B_tree *tree, B_node *current, B_key *key){
         }
 
     }
-    tree->free_fn(deleted_child);
+    tree->val_free_fn(deleted_child);
     if (current->key_num * 2 < tree->MaxChildNum) redistribute(tree, current);
 }
+
+B_node *Find(B_tree *tree, B_key *key, int modify){
+    B_node *current = tree->root;
+    if (!current) return NULL;
+    while (1) {
+
+        if (current->isLeaf == true) break;
+        if (tree->comp_fn(key, &current->key[0], tree->key_metaD, tree->key_metaD_size) > 0){
+            if (modify == true) current->key[0] = *key;
+            current = current->child[0];
+        } else {
+            int i = Binary_search(tree, current, key);
+            current = current->child[i];
+        }
+    }
+    return current;
+}
+
+void Destroy(B_node *current, fn_Bvalue_free free_fn){
+    if (current->isLeaf == true){
+        int i;
+        for (i=0; i < current->key_num; i++){
+            free(current->key[i].key);
+            current->key[i].key_size = 0;
+            free_fn(current->child[i]);
+            current->child[i] = NULL;
+        }
+    } else {
+        int i;
+        for (i = 0; i < current->key_num; i++){
+            Destroy(current->child[i], free_fn);
+        }
+    }
+    free(current);
+}
+
+#if 0
+void Print(B_node *current){
+
+    int i;
+    for (i = 0; i < current->key_num; i++){
+        printf("%d ", current->key[i]);
+    }
+    printf("\n");
+    if (!current->isLeaf){
+        for (i = 0; i < current->key_num; i++){
+            print(current->child[i]);
+        }
+    }
+}
+#endif
+
+bool B_tree_Insert(B_tree *tree, B_key *key, void *value){
+
+    B_node *leaf_node = Find(tree, key, true);
+    int i = Binary_search(tree, leaf_node, key);
+    if (tree->comp_fn(&leaf_node->key[i], key, tree->key_metaD, tree->key_metaD_size) == 0) return;
+    insert(tree, leaf_node, key, value);
+    return true;
+}
+
+void *B_tree_Selector_by_Key(B_tree *tree, B_key *key){
+
+    unsigned char key_output_buffer[128];
+    unsigned char value_output_buffer[128];
+
+    B_node *leaf_node = Find(tree, key, false);
+    if (!leaf_node) return NULL;
+    count = 0;
+    int i;
+    for (i = 0; i < leaf_node->key_num; i++){
+        if (tree->comp_fn(&leaf_node->key[i], key, tree->key_metaD, tree->key_metaD_size) == 0){
+            count++;
+            if (0 && count < 20){
+                tree->key_fmt_fn(&leaf_node->key[i], key_output_buffer, tree->key_metaD_size);
+                tree->val_fmt_fn((void *)leaf_node->child[i], value_output_buffer, sizeof(value_output_buffer));
+                printf("[no.%d = %s, key = %s, value = %s]", count, key_output_buffer, value_output_buffer);
+            }
+            return (void *)leaf_node->child[i];
+        }
+    }
+    return NULL;
+}
+
+void B_tree_Selector_by_range(B_tree *tree, B_key *left_bound, B_key *right_bound){
+
+    unsigned char key_output_buffer[128];
+    unsigned char value_output_buffer[128];
+
+    B_node *leaf_node = Find(tree, left_bound, right_bound);
+    count = 0;
+    int i = 0;
+    for (i = 0; i < leaf_node->key_num; i++){
+        // for the current leaf node, iterate over from the first key of the node,
+        // until get to the point where the key has value > val of left_bound, then break
+        if (tree->comp_fn(&leaf_node->key[i], left_bound, tree->key_metaD, tree->key_metaD_size) <= 0) break;
+    }
+    int finish = false;
+    while (!finish){
+        while (i < leaf_node->key_num){
+            if (tree->comp_fn(&leaf_node->key[i], right_bound, tree->key_metaD, tree->key_metaD_size) < 0){
+                finish = true;
+                break;
+            }
+            count++;
+            if (count == 20) printf("...\n");
+            if (count < 20) {
+                tree->key_fmt_fn(&leaf_node->key[i], key_output_buffer, sizeof(key_output_buffer));
+                tree->val_fmt_fn((void *)leaf_node->child[i], value_output_buffer, sizeof(value_output_buffer));
+                printf("[no.%d = %s, key = %s, value = %s]", count, key_output_buffer, value_output_buffer);
+            }
+            count++;
+        }
+        if (finish || leaf_node->next == NULL) break;
+        leaf_node = leaf_node->next;
+        i = 0;
+    }
+    printf("Total number of answer is: %d\n", count++);
+}
+
+void B_tree_Modify(B_tree *tree, B_key *key, void *value){
+
+    unsigned char key_output_buffer[128];
+    unsigned char initial_value_output_buffer[128];
+    unsigned char new_value_output_buffer[128];
+
+    // find the leaf node that has the key
+    B_node *leaf_node = Find(tree, key, false);
+    // find the index i such that leaf_node[i] < key
+    int i = Binary_search(tree, leaf_node, key);
+    // if key != leaf_node[i], then key is no where to be found
+    if (tree->comp_fn(&leaf_node->key[i], key, tree->key_metaD, tree->key_metaD_size) != 0) return;
+
+    tree->key_fmt_fn(key, key_output_buffer, sizeof(key_output_buffer));
+    tree->val_fmt_fn((void *)leaf_node->child[i], initial_value_output_buffer, sizeof(initial_value_output_buffer));
+    tree->val_fmt_fn((void *)value, new_value_output_buffer, sizeof(new_value_output_buffer));
+    printf("Modify: key = %s, initial value = %s, new value = %s\n", key_output_buffer, initial_value_output_buffer, new_value_output_buffer);
+    free(leaf_node->child[i]);
+    leaf_node->child[i] = value;
+}
+
+void B_tree_Erase(B_tree *tree, B_key *key, void *value){
+
+    unsigned char key_output_buffer[128];
+    unsigned char value_output_buffer[128];
+
+    B_node *leaf_node = Find(tree, key, false);
+    int i = Binary_search(tree, leaf_node, key);
+    if (tree->comp_fn(&leaf_node->key[i], key, tree->key_metaD, tree->key_metaD_size) != 0) return;
+
+    if (tree->key_fmt_fn && tree->val_fmt_fn){
+
+        tree->key_fmt_fn(key, key_output_buffer, sizeof(key_output_buffer));
+        tree->val_fmt_fn((void *)leaf_node->child[i], value_output_buffer, sizeof(value_output_buffer));
+        printf("Delete: key = %s, initial value = %s\n", key_output_buffer, value_output_buffer);
+    }
+    void *released_key = leaf_node->key[i].key;
+    Delete(tree, leaf_node, key);
+    free(released_key);
+}
+
+void B_tree_Destroy(B_tree *tree){
+    if (tree->root == NULL) return;
+    printf("Now destroying the B+tree\n");
+    Destroy(tree->root, tree->val_free_fn);
+    tree->root = NULL;
+    printf("Done.\n");
+}
+
+void *B_tree_next_record(B_tree *tree, B_node **node, int *index){
+
+    B_key *key;
+    void *record;
+
+    if (!tree || !tree->root) return NULL;
+
+    if (*node == NULL){
+
+        BTREE_ITERATE_FIRST(tree, key, record){
+            *index = 0;
+            *node = _bnode_;
+            return _bnode_->child[*index];
+        } BTREE_ITER_END(tree, key, record);
+
+        if (*node == NULL) return NULL;
+
+        (*index)++;
+        *node = (*node)->next;
+
+        if (*node){
+            return (*node)->child[*index];
+        }
+        *index = 0;
+        return NULL;
+    }
+
+}
+
+
+
+
+
+
+
+

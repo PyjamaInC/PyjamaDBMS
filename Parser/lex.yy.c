@@ -720,6 +720,9 @@ void Parser_stack_reset(){
         }
     }
     stack.sp = -1;
+    curr_ptr = lex_buffer;
+    lex_curr_token = NULL;
+    lex_curr_token_len = 0;
 }
 
 void lex_set_scan_buffer(const char* buffer){
@@ -754,8 +757,8 @@ void print_currtoken_formatted(int token_code){
     print_current_token_info(token_code);
 }
 
-#line 757 "lex.yy.c"
-#line 758 "lex.yy.c"
+#line 760 "lex.yy.c"
+#line 761 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -972,10 +975,10 @@ YY_DECL
 		}
 
 	{
-#line 169 "Parser.l"
+#line 172 "Parser.l"
 
 
-#line 978 "lex.yy.c"
+#line 981 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1034,329 +1037,329 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 171 "Parser.l"
+#line 174 "Parser.l"
 {
     return SQL_SELECT_T;
 }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 175 "Parser.l"
+#line 178 "Parser.l"
 {
     return SQL_CREATE_T;
 }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 179 "Parser.l"
+#line 182 "Parser.l"
 {
     return SQL_INSERT_T;
 }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 183 "Parser.l"
+#line 186 "Parser.l"
 {
     return SQL_DELETE_T;
 }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 187 "Parser.l"
+#line 190 "Parser.l"
 {
     return SQL_UPDATE_T;
 }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 191 "Parser.l"
+#line 194 "Parser.l"
 {
     return SQL_DROP_TABLE_T;
 }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 195 "Parser.l"
+#line 198 "Parser.l"
 {
     return SQL_STRING;
 }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 199 "Parser.l"
+#line 202 "Parser.l"
 {
     return SQL_INT;
 }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 203 "Parser.l"
+#line 206 "Parser.l"
 {
     return SQL_DOUBLE;
 }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 207 "Parser.l"
+#line 210 "Parser.l"
 {
     return SQL_PRIMARY_KEY;
 }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 211 "Parser.l"
+#line 214 "Parser.l"
 {
     return SQL_NOT_NULL;
 }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 215 "Parser.l"
+#line 218 "Parser.l"
 {
     return SQL_MAX;
 }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 219 "Parser.l"
+#line 222 "Parser.l"
 {
     return SQL_MIN;
 }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 223 "Parser.l"
+#line 226 "Parser.l"
 {
     return SQL_COUNT;
 }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 227 "Parser.l"
+#line 230 "Parser.l"
 {
     return SQL_AVG;
 }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 231 "Parser.l"
+#line 234 "Parser.l"
 {
     return SQL_FROM;
 }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 235 "Parser.l"
+#line 238 "Parser.l"
 {
     return SQL_WHERE;
 }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 239 "Parser.l"
+#line 242 "Parser.l"
 {
     return SQL_GROUP_BY;
 }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 243 "Parser.l"
+#line 246 "Parser.l"
 {
     return SQL_ORDER_BY;
 }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 247 "Parser.l"
+#line 250 "Parser.l"
 {
     return SQL_HAVING;
 }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 251 "Parser.l"
+#line 254 "Parser.l"
 {
     return SQL_ORDERBY_ASC;
 }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 255 "Parser.l"
+#line 258 "Parser.l"
 {
     return SQL_ORDERBY_DESC;
 }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 259 "Parser.l"
+#line 262 "Parser.l"
 {
     return SQL_LIKE;
 }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 263 "Parser.l"
+#line 266 "Parser.l"
 {
     return SQL_IN;
 }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 267 "Parser.l"
+#line 270 "Parser.l"
 {
     return SQL_BRACKET_LEFT;
 }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 271 "Parser.l"
+#line 274 "Parser.l"
 {
     return SQL_BRACKET_RIGHT;
 }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 275 "Parser.l"
+#line 278 "Parser.l"
 {
     return SQL_LESS_THAN;
 }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 279 "Parser.l"
+#line 282 "Parser.l"
 {
     return SQL_LESS_OR_EQ;
 }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 283 "Parser.l"
+#line 286 "Parser.l"
 {
     return SQL_GREATER_THAN;
 }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 287 "Parser.l"
+#line 290 "Parser.l"
 {
     return SQL_GREATER_OR_EQ;
 }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 291 "Parser.l"
+#line 294 "Parser.l"
 {
     return SQL_EQ;
 }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 295 "Parser.l"
+#line 298 "Parser.l"
 {
     return SQL_NOT;
 }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 299 "Parser.l"
+#line 302 "Parser.l"
 {
     return SQL_AND;
 }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 303 "Parser.l"
+#line 306 "Parser.l"
 {
     return SQL_OR;
 }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 307 "Parser.l"
+#line 310 "Parser.l"
 {
     return SQL_COMMA;
 }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 311 "Parser.l"
+#line 314 "Parser.l"
 {
     return MATH_MUL;
 }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 315 "Parser.l"
+#line 318 "Parser.l"
 {
     return MATH_DIV;
 }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 319 "Parser.l"
+#line 322 "Parser.l"
 {
     return MATH_PLUS;
 }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 323 "Parser.l"
+#line 326 "Parser.l"
 {
     return MATH_MINUS;
 }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 327 "Parser.l"
+#line 330 "Parser.l"
 {
     return MATH_SQR;
 }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 331 "Parser.l"
+#line 334 "Parser.l"
 {
     return MATH_SQRT;
 }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 335 "Parser.l"
+#line 338 "Parser.l"
 {
     return MATH_MAX;
 }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 339 "Parser.l"
+#line 342 "Parser.l"
 {
     return MATH_MIN;
 }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 343 "Parser.l"
+#line 346 "Parser.l"
 {
     return MATH_SIN;
 }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 347 "Parser.l"
+#line 350 "Parser.l"
 {
     return MATH_COS;
 }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 351 "Parser.l"
+#line 354 "Parser.l"
 {
     return MATH_POW;
 }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 355 "Parser.l"
+#line 358 "Parser.l"
 {
     return SQL_QUOTATION_MARK;
 }
@@ -1364,7 +1367,7 @@ YY_RULE_SETUP
 case 48:
 /* rule 48 can match eol */
 YY_RULE_SETUP
-#line 359 "Parser.l"
+#line 362 "Parser.l"
 {
     return PARSER_EOL;
 }
@@ -1372,42 +1375,42 @@ YY_RULE_SETUP
 case 49:
 /* rule 49 can match eol */
 YY_RULE_SETUP
-#line 363 "Parser.l"
+#line 366 "Parser.l"
 {
 
 }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 367 "Parser.l"
+#line 370 "Parser.l"
 {
     return PARSER_QUIT;
 }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 372 "Parser.l"
+#line 375 "Parser.l"
 {
     return SQL_INTEGER_VALUE;
 }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 376 "Parser.l"
+#line 379 "Parser.l"
 {
     return SQL_STRING_VALUE;
 }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 380 "Parser.l"
+#line 383 "Parser.l"
 {
     return SQL_IDENTIFIER;
 }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 384 "Parser.l"
+#line 387 "Parser.l"
 {
     return SQL_IDENTIFIER_IDENTIFIER;
 }
@@ -1415,7 +1418,7 @@ YY_RULE_SETUP
 case 55:
 /* rule 55 can match eol */
 YY_RULE_SETUP
-#line 388 "Parser.l"
+#line 391 "Parser.l"
 {
     return SQL_STRING_VALUE;
 }
@@ -1423,38 +1426,38 @@ YY_RULE_SETUP
 case 56:
 /* rule 56 can match eol */
 YY_RULE_SETUP
-#line 392 "Parser.l"
+#line 395 "Parser.l"
 {
     return SQL_STRING_VALUE;
 }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 396 "Parser.l"
+#line 399 "Parser.l"
 {
     process_white_space(1);
 }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 400 "Parser.l"
+#line 403 "Parser.l"
 {
     process_white_space(4);
 }
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 404 "Parser.l"
+#line 407 "Parser.l"
 {
     // ignore
 }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 408 "Parser.l"
+#line 411 "Parser.l"
 ECHO;
 	YY_BREAK
-#line 1457 "lex.yy.c"
+#line 1460 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2459,7 +2462,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 408 "Parser.l"
+#line 411 "Parser.l"
 
 
 

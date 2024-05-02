@@ -1,6 +1,6 @@
 #include "ParserExport.h"
 #include "Sql_enums.h"
-#include "core/create_statement.h"
+#include "../core/create_statement.h"
 #include <string.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -47,4 +47,5 @@ int main(int argc, char** argv){
         }
         Parser_stack_reset();
     }
+    return 0;
 }

@@ -67,11 +67,11 @@ extern void B_tree_init(B_tree *, fn_Bkey_cmp,
 
 extern void B_tree_SetMaxChildNumber(B_tree *, int);
 extern void B_tree_Destroy(B_tree *);
-extern void B_tree_Insert(B_tree *, B_key *, void *);
-extern void B_tree_Query_by_Key(B_tree *tree, B_key *key);
-extern void B_tree_Query_range(B_tree *, B_key *, B_key *);
-extern bool B_tree_Modify(B_tree *, B_key *key, void *value);
-extern bool B_tree_Erase(B_tree *, B_key *);
+extern bool B_tree_Insert(B_tree *, B_key *, void *);
+extern void *B_tree_Selector_by_Key(B_tree *tree, B_key *key);
+extern void B_tree_Selector_by_range(B_tree *, B_key *, B_key *);
+extern void B_tree_Modify(B_tree *, B_key *key, void *value);
+extern void B_tree_Erase(B_tree *, B_key *);
 void *B_tree_next_record(B_tree *, B_node *, int *, B_key *);
 
 #define BTREE_ITERATE_FIRST(B_tree_ptr, key_ptr, record_ptr)  \
@@ -90,14 +90,14 @@ void *B_tree_next_record(B_tree *, B_node *, int *, B_key *);
                     record_ptr = _bnode_->child[_iter_];    \
 
 #define BTREE_ITER_BRK  \
-    brk_ctrl = true;    \
+    brk_switch = true;    \
     break;  \
 
 #define BTREE_ITER_CONT \
     continue
 #define BTREE_ITER_END(B_tree_ptr, key_ptr, record_ptr) \
                 }   \
-                if (brk_ctrl) break;    \
+                if (brk_switch) break;    \
                 _bnode_ = _bnode_->next;    \
             }}
 

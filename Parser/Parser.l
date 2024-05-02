@@ -130,6 +130,9 @@ void Parser_stack_reset(){
         }
     }
     stack.sp = -1;
+    curr_ptr = lex_buffer;
+    lex_curr_token = NULL;
+    lex_curr_token_len = 0;
 }
 
 void lex_set_scan_buffer(const char* buffer){

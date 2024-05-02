@@ -4,7 +4,7 @@
 #include <assert.h>
 #include "ParserExport.h"
 #include "Sql_enums.h"
-#include "core/create_statement.h"
+#include "../core/create_statement.h"
 
 
 /*
@@ -133,6 +133,7 @@ parse_rc_t COLUMNS_LIST(){
 
         token_code = cyylex();
         if (token_code != SQL_COMMA){
+            cdata.n_cols--;
             break;
         }
 
@@ -161,12 +162,11 @@ parse_rc_t COLUMNS_LIST(){
 parse_rc_t create_validate(){
 
     parse_init();
+    memset(&cdata, 0, sizeof(cdata));
 
     // expected token: create
     token_code = cyylex();
     assert(token_code == SQL_CREATE_T);
-
-    memset(&cdata, 0, sizeof(cdata));
 
     // expected token: table
     token_code = cyylex();
@@ -206,6 +206,7 @@ parse_rc_t create_validate(){
     token_code = cyylex();
     if (token_code != PARSER_EOL){
         err_logging(token_code, PARSER_EOL);
+        printf("Failed\n");
         RETURN_PARSE_ERROR;
     }
     RETURN_PARSE_SUCCESS;
