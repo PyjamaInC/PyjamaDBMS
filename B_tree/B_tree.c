@@ -331,10 +331,10 @@ B_node *Find(B_tree *tree, B_key *key, int modify){
         if (current->isLeaf == true) break;
         if (tree->comp_fn(key, &current->key[0], tree->key_metaD, tree->key_metaD_size) > 0){
             if (modify == true) current->key[0] = *key;
-            current = current->child[0];
+            current = (B_node *)current->child[0];
         } else {
             int i = Binary_search(tree, current, key);
-            current = current->child[i];
+            current = (B_node *) current->child[i];
         }
     }
     return current;
@@ -352,7 +352,7 @@ void Destroy(B_node *current, fn_Bvalue_free free_fn){
     } else {
         int i;
         for (i = 0; i < current->key_num; i++){
-            Destroy(current->child[i], free_fn);
+            Destroy((B_node *)current->child[i], free_fn);
         }
     }
     free(current);
@@ -378,7 +378,7 @@ bool B_tree_Insert(B_tree *tree, B_key *key, void *value){
 
     B_node *leaf_node = Find(tree, key, true);
     int i = Binary_search(tree, leaf_node, key);
-    if (tree->comp_fn(&leaf_node->key[i], key, tree->key_metaD, tree->key_metaD_size) == 0) return;
+    if (tree->comp_fn(&leaf_node->key[i], key, tree->key_metaD, tree->key_metaD_size) == 0) return false;
     insert(tree, leaf_node, key, value);
     return true;
 }
@@ -411,7 +411,7 @@ void B_tree_Selector_by_range(B_tree *tree, B_key *left_bound, B_key *right_boun
     unsigned char key_output_buffer[128];
     unsigned char value_output_buffer[128];
 
-    B_node *leaf_node = Find(tree, left_bound, right_bound);
+    B_node *leaf_node = Find(tree, left_bound, false);
     count = 0;
     int i = 0;
     for (i = 0; i < leaf_node->key_num; i++){
@@ -463,7 +463,7 @@ void B_tree_Modify(B_tree *tree, B_key *key, void *value){
     leaf_node->child[i] = value;
 }
 
-void B_tree_Erase(B_tree *tree, B_key *key, void *value){
+void B_tree_Erase(B_tree *tree, B_key *key){
 
     unsigned char key_output_buffer[128];
     unsigned char value_output_buffer[128];
@@ -505,18 +505,17 @@ void *B_tree_next_record(B_tree *tree, B_node **node, int *index){
             *node = _bnode_;
             return _bnode_->child[*index];
         } BTREE_ITER_END(tree, key, record);
-
-        if (*node == NULL) return NULL;
-
-        (*index)++;
-        *node = (*node)->next;
-
-        if (*node){
-            return (*node)->child[*index];
-        }
-        *index = 0;
-        return NULL;
     }
+    if (*node == NULL) return NULL;
+
+    (*index)++;
+    *node = (*node)->next;
+
+    if (*node){
+        return (*node)->child[*index];
+    }
+    *index = 0;
+    return NULL;
 
 }
 

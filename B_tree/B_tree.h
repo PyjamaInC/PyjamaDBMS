@@ -72,7 +72,7 @@ extern void *B_tree_Selector_by_Key(B_tree *tree, B_key *key);
 extern void B_tree_Selector_by_range(B_tree *, B_key *, B_key *);
 extern void B_tree_Modify(B_tree *, B_key *key, void *value);
 extern void B_tree_Erase(B_tree *, B_key *);
-void *B_tree_next_record(B_tree *, B_node *, int *, B_key *);
+void *B_tree_next_record(B_tree *, B_node **, int *);
 
 #define BTREE_ITERATE_FIRST(B_tree_ptr, key_ptr, record_ptr)  \
         {   \

@@ -4,7 +4,7 @@
         {
             "label": "Build pyjamaDB",
             "type": "shell",
-            "command": "bash",
+            "command": "zsh",
             "args": [
                 "-c",
                 "cd Parser && rm -f *.o && lex Parser.l && g++ -g -I../core -c lex.yy.c -o lex.yy.o && g++ -g -I../core -c create_validate.c -o create_validate.o && g++ -g -I../core -c Sql_validate.c -o Sql_validate.o && g++ -g -I../core -c ../core/create_statement.c -o ../core/create_statement.o && g++ -g lex.yy.o create_validate.o Sql_validate.o ../core/create_statement.o -o pyjamaDB -lfl"
@@ -33,6 +33,39 @@
                 "showReuseMessage": true,
                 "clear": true
             }
+        },
+        {
+            "label": "Build B_tree",
+            "type": "shell",
+            "command": "zsh",
+            "args": [
+                "-c",
+                "cd B_tree && g++ -g -c -fpermissive B_tree.c -o B_tree.o && g++ -g -c main.c -o main.o && g++ -g B_tree.o main.o -o test"
+            ],
+            "group": {
+                "kind": "build"
+            },
+            "problemMatcher": {
+                "owner": "cpp",
+                "fileLocation": ["absolute"],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                }
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": true
+            }
         }
+        
     ]
 }

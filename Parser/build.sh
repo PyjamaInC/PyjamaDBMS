@@ -9,5 +9,5 @@ g++ -g -c -fpermissive ../B_tree/B_tree.c -o  ../B_tree/B_tree.o
 
 # core directory
 g++ -g -c ../core/create_statement.c -o ../core/create_statement.o
-
-g++ -g lex.yy.o create_validate.o Sql_validate.o ../core/create_statement.o ../B_tree/B_tree.o -o pyjamaDB -lfl
+g++ -g -c -fpermissive ../core/comparison.c -o ../core/comparison.o 
+g++ -g lex.yy.o create_validate.o Sql_validate.o ../core/create_statement.o ../core/comparison.o ../B_tree/B_tree.o -o pyjamaDB -lfl
