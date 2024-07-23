@@ -59,58 +59,94 @@ static int Binary_search(B_tree *tree, B_node* current, B_key *key){
 void insert(B_tree *tree, B_node *current, B_key *key, void* value);
 
 void split(B_tree *tree, B_node *current){
-
+    // Step 1: Create a new node to hold the second half of the keys and child pointers
     B_node *temp = init_B_node();
     B_node *ch;
+    // Step 2: Calculate the middle index to split the keys and child pointers
     int mid = tree->MaxChildNum >> 1;
+
+    // Step 3: Set the leaf status of the new node to match the current node
     temp->isLeaf = current->isLeaf;
+    // Step 4: Set the number of keys in the new node
     temp->key_num = tree->MaxChildNum - mid;
+    // Step 5: Move the keys and child pointers from the current node (from the mid-th index till the end) to the new node (to the 0-th index and go on)
     int _iter_;
-    for (_iter_ = 0; _iter_ < tree->MaxChildNum; _iter_++){
+    for (_iter_ = mid; _iter_ < tree->MaxChildNum; _iter_++){
 
         temp->child[_iter_ - mid] = current->child[_iter_];
         temp->key[_iter_ - mid] = current->key[_iter_];
+        // Step 6: Update the parent pointer of the child nodes being moved to the new node        
         if (temp->isLeaf) {
-            // do nothing
+            // do nothing if the current node is a leaf
         } else {
             ch = (B_node *)temp->child[_iter_ - mid];
             ch->father = temp;
         }
 
     }
-
+    // Step 7: Update the number of keys in the current node, as we already move (current->key_num - mid) keys and child to the new node
     current->key_num = mid;
+    // Step 8: Handle the case where the current node is the root
     if (current->isRoot){
+        // Step 8.1: Create a new root node
         tree->root = init_B_node();
         tree->root->key_num = 2;
         tree->root->isRoot = true;
+        // Step 8.2: Set the keys and child pointers of the new root node, note that now after splitting, we have two nodes: current and temp. If current is initially a root, then we create a new root node and append to it both current and temp.
         tree->root->key[0] = current->key[0];
         tree->root->child[0] = current;
         tree->root->key[1] = temp->key[0];
         tree->root->child[1] = temp;
+        // Step 8.3: Update the parent pointers of the current and new nodes
         current->father = temp->father = tree->root;
         current->isRoot = false;
+        // Step 8.4: A root node can also be a leaf node if the tree has only 1 node at the time, so we also have to check for this case here.
         if (current->isLeaf){
             current->next = temp;
             current->last = current;
 
         }
     } else {
-
+        // Step 9: Handle the case where the current node is not the root
+        // Step 9.1: Update the parent pointer of the new node
         temp->father = current->father;
+        // Step 9.2: Insert the middle key and new node pointer into the parent node
         insert(tree, current->father, &current->key[mid], (void *)temp);
     }
 
 }
 
-
+/**
+ * @brief Inserts a new key-value pair into a node of the B+ tree.
+ *
+ * @param tree Pointer to the B+ tree.
+ * @param current Pointer to the current node where the key-value pair should be inserted.
+ * @param key Pointer to the key to be inserted.
+ * @param value Pointer to the value associated with the key.
+ *
+ * This function inserts a new key-value pair into a node of the B+ tree. It follows these steps:
+ * 1. Determines the appropriate index (insert_index) to insert the new key based on the key values.
+ * 2. Shifts all the keys and child pointers in the node to the right, starting from the insert index.
+ * 3. Inserts the new key and value at the determined insert index.
+ * 4. If the current node is not a leaf node and the first child is a leaf node, updates the linked list pointers.
+ * 5. Checks if the current node needs to be split due to reaching the maximum number of children.
+ *
+ * If the current node reaches the maximum number of children (MaxChildNum), the function calls the `split()`
+ * function to split the node and redistribute the keys and child pointers.
+ */
 void insert(B_tree *tree, B_node *current, B_key *key, void* value){
 
     // define and determine insert index
     int _iter_, insert_index;
+
     // case: key array of current node is empty
     if (current->key_num == 0) insert_index = 0;
-    // case: first key &current->key[0] > key, return index 0 for the `key`
+
+    /* case: first key &current->key[0] > key, return index 0 for the `key`. the insert index for `key` will be 0 which is the first of current node.
+            return -1 if key1 > key2, 
+            return 0 if key1 = key2, 
+            return 1 if key1 < key2
+    */
     else if (tree->comp_fn(key, &current->key[0], tree->key_metaD, tree->key_metaD_size) > 0) insert_index = 0;
     else insert_index = Binary_search(tree, current, key) + 1;
 
@@ -323,18 +359,45 @@ void Delete(B_tree *tree, B_node *current, B_key *key){
     if (current->key_num * 2 < tree->MaxChildNum) redistribute(tree, current);
 }
 
+/**
+ * @brief Finds the leaf node where a given key should be located in the B+ tree.
+ *
+ * @param tree Pointer to the B+ tree.
+ * @param key Pointer to the search key.
+ * @param modify Flag indicating whether to modify the keys during the search.
+ *
+ * @return Pointer to the leaf node where the key should be located, or NULL if the tree is empty.
+ *
+ * This function traverses the B+ tree from the root node to the leaf node where the given search key
+ * should be located. It compares the search key with the keys in each node and follows the appropriate
+ * child pointer until a leaf node is reached.
+ *
+ * If the `modify` flag is set to true, the function updates the keys in the nodes along the search path
+ * with the search key.
+ *
+ * The function returns a pointer to the leaf node where the search key should be located. If the tree
+ * is empty, the function returns NULL.
+ */
 B_node *Find(B_tree *tree, B_key *key, int modify){
     B_node *current = tree->root;
+    // check for empty tree first
     if (!current) return NULL;
     while (1) {
-
+        // if reach leaf node
         if (current->isLeaf == true) break;
+        /*
+            return -1 if key1 > key2, 
+            return 0 if key1 = key2, 
+            return 1 if key1 < key2
+        */
         if (tree->comp_fn(key, &current->key[0], tree->key_metaD, tree->key_metaD_size) > 0){
+            // then if modify, then first key in current will be `key`
             if (modify == true) current->key[0] = *key;
-            current = (B_node *)current->child[0];
+            current = (B_node *)current->child[0]; // update current to its first (leftmost) child
         } else {
             int i = Binary_search(tree, current, key);
-            current = (B_node *) current->child[i];
+            // update current to its i-th child as we know for sure that nodes comes before i-th will be less than the current `key`
+            current = (B_node *) current->child[i]; 
         }
     }
     return current;
@@ -374,15 +437,39 @@ void Print(B_node *current){
 }
 #endif
 
+
 bool B_tree_Insert(B_tree *tree, B_key *key, void *value){
 
     B_node *leaf_node = Find(tree, key, true);
     int i = Binary_search(tree, leaf_node, key);
+    /* Compare the i-th key of the leaf_node with the searched key to see if they are indeed the same. If not proceed to 
+        return -1 if key1 > key2, 
+        return 0 if key1 = key2, 
+        return 1 if key1 < key2
+
+    */
     if (tree->comp_fn(&leaf_node->key[i], key, tree->key_metaD, tree->key_metaD_size) == 0) return false;
     insert(tree, leaf_node, key, value);
     return true;
 }
 
+/**
+ * @brief Retrieves the value associated with a given key in the B+ tree.
+ *
+ * @param tree Pointer to the B+ tree.
+ * @param key Pointer to the search key.
+ *
+ * @return Pointer to the value associated with the key, or NULL if the key is not found.
+ *
+ * This function searches for the given key in the B+ tree and retrieves the associated value.
+ * It uses the `Find()` function to locate the leaf node where the key should be located.
+ *
+ * If the key is found in the leaf node, the function returns a pointer to the corresponding value.
+ * If the key is not found, the function returns NULL.
+ *
+ * Note: The function contains commented-out code that formats and prints the key and value if a certain
+ * condition is met. However, this condition is always false in the provided code.
+ */
 void *B_tree_Selector_by_Key(B_tree *tree, B_key *key){
 
     unsigned char key_output_buffer[128];

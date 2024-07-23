@@ -10,12 +10,12 @@
 // -1: key1 > key2
 // 0 : key1 = key2
 // 1 : key1 < key2
-static int tree_comp_fn(B_key *key1, B_key *key2, md_key *key_meta_d,
+int tree_comp_fn(B_key *key1, B_key *key2, md_key *key_meta_d,
                         int key_md_size) {
 
   int result;
   int dtype_size;
-  int offset;
+  int offset = 0;
   sql_dtpye dtype;
   int i;
   if (!key1 || !key1->key || !key1->key_size)

@@ -21,7 +21,11 @@ typedef struct _meta_data_key_ {
 
 } md_key;
 
-
+/**
+ * @struct B_key
+ * @brief An abstraction of a key that is located inside a B_node (either internal or leaf node).
+ `key` is the main field of this struct as it allows us to access the value of the key. In the context of a catalog table, `B_key.key` will store the table name. For a schema table, `B_key.key` will store the column name. 
+*/
 typedef struct _B_key_ {
 
     uint16_t key_size;
@@ -29,6 +33,13 @@ typedef struct _B_key_ {
 
 } B_key;
 
+/**
+ * @struct B_node
+ * @brief An abstraction of a node of B_tree. Simply put, this struct can be either an interal node or a leaf node. 
+ * As a leaf node, it will be a part of a doubly-linked list (hence, exist fields `next, last`). As an internal node, it will need to reference back to its parent (`father`).
+ * @details There exist 2 arrays as members of this struct. `key[]` array will store `B_key` (which value of the key can be access via `B_key.key`). The array `child[]` stores pointers to either lower-level of internal nodes, or last-level leaf nodes (hence of type void *).
+ * Besides, the reason that we add more than just MAX_CHILD_NUMBER is for holding a place for further inserting operations. Other fields are self-explanatory.   
+*/
 typedef struct _B_node_ {
 
     bool isRoot, isLeaf;
@@ -48,6 +59,12 @@ typedef void (*fn_Bvalue_free)(void *);
 
 typedef struct _B_tree_ {
 
+    /**
+     * @brief a pointer to a function that perform 2 keys with the following rules: 
+     * return -1 if key1 > key2, 
+     * return 0 if key1 = key2, 
+     * return 1 if key1 < key2
+    */
     fn_Bkey_cmp comp_fn;
     fn_Bkey_format key_fmt_fn;
     fn_Bvalue_format val_fmt_fn;

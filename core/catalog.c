@@ -14,15 +14,10 @@ B_tree TableCatalog;
 static void st_record_free(void *ptr) { free(ptr); };
 
 /**
- @brief this function was meant to first convert information store in cdata
- (which is short for column data) into an entry of schema table. Entry of schema
- table include 2 fields: key <column_name> and record <ptr to corresponding
- schema_record>. Then they are inserted into the tree schema_table via API from
- B_tree library B_tree_Insert()
- @param schema_table A pointer to a tree which actually is schema table
- @param cdata A pointer to a create_stm_data which holds the meta data of a
- normal DBMS table. Its member col_data is an array stores only data about all
- of columns in this normal DBMS table
+ @brief this function was meant to first convert information store in `cdata`
+ (which is short for column data) into an entry of schema table. Entry of schema table include 2 fields: key <column_name> and record <ptr to corresponding schema_record>. Then they are inserted into the tree schema_table via API from B_tree library B_tree_Insert()
+ @param schema_table A pointer to a tree which actually is schema table, is passed as `B_tree TableCatalog` which is extern in other files.
+ @param cdata A pointer to a create_stm_data which holds the meta data of a normal DBMS table. Its member col_data is an array stores only data about all of columns in this normal DBMS table
  @return nothing
  */
 static void Catalog_new_schema_table(B_tree *schema_table,
@@ -39,15 +34,16 @@ static void Catalog_new_schema_table(B_tree *schema_table,
     strncpy((char *)bkey_template.key, cdata->col_data[i].column_name,
             COLUMN_NAME_MAX_SIZE);
     bkey_template.key_size = COLUMN_NAME_MAX_SIZE;
+
     // setup value of the record
     record = (schema_record *)calloc(1, sizeof(schema_record));
     strncpy(record->column_name, cdata->col_data[i].column_name,
             COLUMN_NAME_MAX_SIZE);
     record->data_type = cdata->col_data[i].dtype;
     record->dtype_size = cdata->col_data[i].dtype_len;
-    record->offset = offset;
-    offset += record->data_type;
     record->is_primary_key = cdata->col_data[i].is_primary_key;
+    record->offset = offset;
+    offset += record->dtype_size;
 
     // Insert into schema table
     assert(B_tree_Insert(schema_table, &bkey_template, (void *)record));
@@ -86,7 +82,7 @@ bool catalog_insert_new_table(B_tree *catalog, create_stm_data *cdata) {
   // check for table existence
   if (B_tree_Selector_by_Key(catalog, &bkey)){
     printf("Error: Table already exist\n");
-    free(&bkey.key);
+    free(bkey.key);
     return false;
   }
   
@@ -117,7 +113,7 @@ bool catalog_insert_new_table(B_tree *catalog, create_stm_data *cdata) {
   B_tree_init(schema_table, tree_comp_fn, NULL, NULL,
               MAX_CHILD_PER_SCHEMA_TABLE, st_record_free, mdkey_array2,
               sizeof(mdkey_array2) / sizeof(md_key));
-  catalog_insert_new_table(schema_table, cdata);
+  Catalog_new_schema_table(schema_table, cdata);
 
   /* Implementation: create a record table
    * Actual recors from the `insert into` query will be stored in this table
